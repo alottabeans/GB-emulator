@@ -2,67 +2,96 @@
 #include <stdlib.h>
 #include <string.h>
 #include "cpu.h"
+#include "instructions.h"
 
 
-void init_gb(struct GB *gb)
-{
-  gb->op = 0;
+void init_cpu(struct CPU *cpu)
+{ 
+  cpu->SP = 0;
+  cpu->PC = 0x0100; 
+} 
 
-  gb->SP = 0;
-  gb->PC = 0x0100;
-
-  for(int i=0; i < 0xFFFF; i++)
-    {
-      gb->Mem[i] = 1;
-    }  
-}
-
-void load_rom(struct GB *gb)
+void load_rom(struct CPU *cpu)
 {
   FILE *rom;
-
+  
   rom = fopen("../roms/Dr. Mario (JU) (V1.1).gb", "rb");
-
+  
   if(rom == NULL)
     {
-      printf("File was not found");
+      printf("File was not found\n");
+      fclose(rom);
     }
 
-  fread(&gb->Mem[gb->PC], 1, 0xFFFF, rom);   
+  
+  fread(&cpu->Mem[cpu->PC], 1, 0xFFFF, rom); 
   fclose(rom);
 }
-
  
-U16 fetch_opcode(struct GB *gb)
-{    
+
+U16 read_opcode(struct CPU *cpu)
+{  
   U16 ret;
+ 
+  ret = cpu->Mem[cpu->PC >> 8] | cpu->Mem[cpu->PC];
 
-  U16 msb = gb->Mem[gb->PC];
-  U16 lsb = gb->Mem[gb->PC + 1];
+  cpu->PC += 1;
 
-  ret = lsb << 16 | msb; 
-      
   return ret;
 }
 
 
-U16 execute_opcode(struct GB *gb)
+U16 combine_regs(U8 r1, U8 r2)
 {
-  gb->op = fetch_opcode(gb);
+  U16 ret;
 
-  printf("opcode: 0x%X\n", gb->op); 
-}
-
-
-int main()
-{
-  struct GB gameboy;
+  ret = r1 | r2;
   
-  init_gb(&gameboy);
-
-  load_rom(&gameboy);
-
-  fetch_opcode(&gameboy);  
-
-  execute_opcode(&gameboy);
+  return ret;
 }
+
+void execute_opcodes(struct CPU *cpu)
+{
+  U8 upper, lower;
+  
+  U16 current_op = read_opcode(cpu);
+  
+  U8 op_queue[2] = {upper, lower};
+
+  upper = current_op & 0x00FF;
+  lower = current_op >> 8;
+  
+  for(int i=0; i < 2; i++)
+    {
+      U8 current_op = op_queue[i];
+
+      printf("current_op: 0x%X\n", current_op);
+
+      switch(current_op)
+	{  
+	case 0x0: NOP(cpu->PC); break;
+	case 0x1: LD_bc_u16(combine_regs(cpu->b, cpu->c), ); break;
+	case 0x2: break;
+	  
+	//default: printf("Opcode 0x%X not found!", current_op); exit(0);
+	}
+    }
+}
+
+
+
+int main(void)
+{
+  struct CPU cpu;
+  
+  init_cpu(&cpu);
+  load_rom(&cpu);
+
+  for(int i=0; i < 30; i++)
+    {
+      execute_opcodes(&cpu);
+    }
+
+  return 0;
+}
+

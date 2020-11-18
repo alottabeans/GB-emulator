@@ -14,6 +14,7 @@ struct CPU
   U8 a;
   U8 f;
   U8 b;
+  U8 c;
   U8 d;
   U8 e;
   U8 h;
@@ -23,10 +24,19 @@ struct CPU
   U16 PC; 
 };
 
+struct Flags
+{
+  U8 z;
+  U8 n;
+  U8 h;
+  U8 c;
+};
+
 void init_gb(struct CPU *cpu);
 void load_rom(struct CPU *cpu);
 U8 read_opcodes(struct CPU *cpu);
-U16 combine_regs(U8 r1, U8 r2); 
 void execute_opcodes(struct CPU *cpu);
+void print_regs(struct CPU *cpu);
+
 
 #endif

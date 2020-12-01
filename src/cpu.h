@@ -9,8 +9,11 @@ typedef uint16_t U16;
 struct CPU
 {
   U16 Mem[0xFFFF];
+
   int display[160 * 144];
 
+  U16 op; 
+    
   U8 a;
   U8 f;
   U8 b;
@@ -24,6 +27,7 @@ struct CPU
   U16 PC; 
 };
 
+
 struct Flags
 {
   U8 z;
@@ -34,7 +38,7 @@ struct Flags
 
 void init_gb(struct CPU *cpu);
 void load_rom(struct CPU *cpu);
-U8 read_opcodes(struct CPU *cpu);
+U8 fetch_opcodes(struct CPU *cpu);
 void execute_opcodes(struct CPU *cpu);
 void print_regs(struct CPU *cpu);
 

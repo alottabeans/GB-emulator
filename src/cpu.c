@@ -5,11 +5,6 @@
 #include "opcodes.h"
 #include "util.h"
 
-//NOTE:
-//there's reserved chunks of memory in the gameboy
-//used for specific shit, i think it would be wise
-//to 
-
 void init_cpu(struct CPU *cpu)
 { 
   cpu->PC = 0x0100; 

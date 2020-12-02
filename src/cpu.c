@@ -5,17 +5,19 @@
 #include "opcodes.h"
 #include "util.h"
 
+#define TEST_INSTRS "../roms/cpu_instrs/cpu_instrs/cpu_instrs.gb "
+#define DRMARIO "../roms/Dr. Mario (JU) (V1.1).gb"
+
 void init_cpu(struct CPU *cpu)
 { 
   cpu->PC = 0x0100; 
 } 
 
-
 void load_rom(struct CPU *cpu)
 {
   FILE *rom;
   
-  rom = fopen("../roms/Dr. Mario (JU) (V1.1).gb", "rb");
+  rom = fopen(DEBUG_INSTRS, "rb");
   
   if(rom == NULL)
     {
@@ -39,6 +41,7 @@ U16 fetch_opcode(struct CPU *cpu)
   return ret;
 }
 
+
 void execute_opcodes(struct CPU *cpu)
 {   
   U8 upper, lower;
@@ -47,39 +50,61 @@ void execute_opcodes(struct CPU *cpu)
   
   upper = current_op & 0x00FF;
   lower = current_op >> 8;
-
-  U8 op_queue[2] = {upper , lower};
-  //current_op = upper << 8 | lower;
   
-  
-  printf("current_op : 0x%X\n", current_op);
-
+  U8 op_queue[2] = {upper ,lower};
+    
   for(int i=0; i < 2; i++)
     {
       current_op = op_queue[i];
+      
+      printf("current_op : 0x%X\n", current_op);
 
       switch(current_op)
 	{  
 	case 0x0:
 	  NOP(cpu->PC);
+	  cpu->PC++;
 	  break;      
     
 	case 0x1:
-	  ld_r16_n16(COMB_REGS(cpu->b, cpu->c), cpu->Mem[cpu->PC + 2]);
+	  ld_r16_n16(combine_regs(cpu->b, cpu->c), cpu->Mem[cpu->PC + 2]);
 	  cpu->PC += 3;
 	  break;
       
 	case 0x2:
-	  ld_r16_n8(COMB_REGS(cpu->Mem[cpu->b], cpu->Mem[cpu->c]), cpu->a); 
+	  ld_r16_n8(combine_regs(cpu->Mem[cpu->b], cpu->Mem[cpu->c]), cpu->Mem[cpu->PC]); 
 	  cpu->PC++;
 	  break;
 
 	case 0x3:
-	  inc_regs(COMB_REGS(cpu->b, cpu->c));
+	  inc_regs(combine_regs(cpu->b, cpu->c));
 	  cpu->PC++; 
 	  break;
-      
-	default: printf("Unsupported Opcode 0x%X\n", current_op); NOP(cpu->PC);
+
+	case 0x4:
+	  inc_regs(cpu->b);
+	  cpu->PC++;
+	  break;
+
+	case 0x5:
+	  dec_regs(cpu->b);
+	  cpu->PC++;
+	  break;	  
+
+	case 0x6:
+	  ld_r8_n8(cpu->b, cpu->Mem[cpu->PC + 1]);
+	  cpu->PC += 2;
+	  break;
+
+	case 0x7:
+	  break;
+
+	case 0x8:
+	  ld_r16_n16(cpu->Mem[cpu->PC + 2], cpu->SP);
+	  cpu->PC += 3;
+	  break;
+
+	  //default: printf("Unsupported Opcode 0x%X\n", current_op); NOP(cpu->PC);
 	}
     }
 }
@@ -95,13 +120,13 @@ void print_regs(struct CPU *cpu)
   printf("reg h : 0x%X\n", cpu->h);
   printf("reg l : 0x%X\n", cpu->l);
   
-  printf("reg AF : 0x%X\n", COMB_REGS(cpu->a, cpu->f));
-  printf("reg BC : 0x%X\n", COMB_REGS(cpu->b, cpu->c));
-  printf("reg DE : 0x%X\n", COMB_REGS(cpu->d, cpu->e));
-  printf("reg HL : 0x%X\n", COMB_REGS(cpu->h, cpu->l));
+  printf("reg AF : 0x%X\n", combine_regs(cpu->a, cpu->f));
+  printf("reg BC : 0x%X\n", combine_regs(cpu->b, cpu->c));
+  printf("reg DE : 0x%X\n", combine_regs(cpu->d, cpu->e));
+  printf("reg HL : 0x%X\n", combine_regs(cpu->h, cpu->l));
 }
 
-
+/*
 int main(void)
 {
   struct CPU cpu;
@@ -118,3 +143,4 @@ int main(void)
   return 0;
 }
 
+*/

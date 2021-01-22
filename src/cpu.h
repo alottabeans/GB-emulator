@@ -3,42 +3,40 @@
  
 #include <stdint.h>
 
-typedef uint8_t U8;
-typedef uint16_t U16;
+typedef uint8_t u8;
+typedef uint16_t u16;
+
 
 struct CPU
 {
-  U16 Mem[0xFFFF];
+  u16 Mem[0xFFFF];
 
   int display[160 * 144];
 
-  U16 op; 
-    
-  U8 a;
-  U8 f;
-  U8 b;
-  U8 c;
-  U8 d;
-  U8 e;
-  U8 h;
-  U8 l;
-  
-  U16 SP; 
-  U16 PC; 
-};
+  u8 a;
+  u8 f;
+  u8 b;
+  u8 c;
+  u8 d;
+  u8 e;
+  u8 h;
+  u8 l;
 
+  u16 SP; 
+  u16 PC; 
+};
 
 struct Flags
 {
-  U8 z;
-  U8 n;
-  U8 h;
-  U8 c;
+  u8 z;
+  u8 n;
+  u8 h;
+  u8 c;
 };
 
 void init_gb(struct CPU *cpu);
 void load_rom(struct CPU *cpu);
-U8 fetch_opcodes(struct CPU *cpu);
+u8 fetch_opcodes(struct CPU *cpu);
 void execute_opcodes(struct CPU *cpu);
 void print_regs(struct CPU *cpu);
 

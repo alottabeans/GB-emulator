@@ -3,22 +3,29 @@
 
 #include "cpu.h"
 
-
 #define UPPER(x) (x >> 4)
 #define LOWER(x) (x & 0x0F)
-
 #define NOP(pc) (pc++)
 
-U16 combine_regs(U8 r1, U8 r2);
+#define STOP(pc) (pc = 0)
 
-void ld_r16_n16(U16 r, U16 n);
-void ld_r16_n8(U16 r,  U8 n);
-void ld_r8_n8(U8 r, U8 n);
-void ldi_r16_n8(U16 r, U8 n); 
-void ldd_r16_n8(U16 r, U8 n); 
+u16 combine_regs(u8 r1, u8 r2);
 
-void inc_regs(U16 reg);
-void dec_regs(U16 reg);
+u16 ld_r16_n16(u16 r, u16 n);
+u16 ld_r16_n8(u16 r,  u8 n);
+u8 ld_r8_n8(u8 r, u8 n);
+u8 ld_r8_n16(u8 r, u16 n);
+u16 ldi_r16_n8(u16 r, u8 n); 
+u16 ldd_r16_n8(u16 r, u8 n); 
+
+u16 inc_reg(u16 reg);
+u16 dec_reg(u16 reg);
+
+void rlca(u8 a, u8 carry);
+void rrca(u8 a, u8 carry_flag);
+
+u16 add(u16 x, u16 y);
+u16 sub(u16 x, u16 y);
 
 #endif
 
